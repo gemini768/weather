@@ -33,6 +33,11 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
+.more{
+  color: #007ab8;
+  margin-left:-2px !important;
+  font-weight: 600;
+}
 .gridContainer{
   padding-left: 55px;
   padding-bottom: 20px;
@@ -43,7 +48,7 @@
   width: 50%;
   text-align: left;
   }
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 1239px) {
   .grid {
     width: 100%;
     margin-top: 4px;
