@@ -2,7 +2,6 @@
   text-align: center;
   padding:20px;
   background: #f4f8fa;
-  height: 90vh;
   font-family: 'metropolislight';
 }
 .weatherContent{
@@ -14,6 +13,9 @@
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+}
+.forcastEnable{
+  margin-left:135px;
 }
 .timeStamp {
   color: #565656;
@@ -32,14 +34,27 @@
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
+}.arrangeForcast{
+  display: inline;
+  margin-left: 280px;
+}
+.forcastLabel{
+  color: #007ab8;
+  margin-left: -2px !important;
+  font-weight: 600;
+  font-size: 16px;
+  font-family: 'metropolislight !important'
+}
+.actionsContainer{
+  text-align: left;
+  height: 28px;
 }
 .more{
   color: #007ab8;
   margin-left:-2px !important;
   font-weight: 600;
 }
-.gridContainer{
-  padding-left: 55px;
+.gridContainer{    padding-left: 50px;
   padding-bottom: 20px;
   padding-right: 24px;
 }
@@ -54,6 +69,12 @@
     margin-top: 4px;
     text-align: left;
   }
+
+  .arrangeForcast{
+    display: inline;
+    margin-left: 48px;
+  }
+  
 }
 .weatherDetails{
   padding:20px;

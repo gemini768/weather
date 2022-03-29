@@ -1,15 +1,30 @@
-import { Button, TextField, Card, CardContent, Typography,Collapse,Snackbar, CircularProgress, Grid,IconButton, CardActions } from "@material-ui/core";
+import { Button, TextField, Card,
+   CardContent, Typography,Collapse,Snackbar,
+    CircularProgress, Grid,IconButton, CardActions,
+  Switch, FormControlLabel } from "@material-ui/core";
 import {LocationOn, ExpandMore} from '@material-ui/icons';
 import clsx from 'clsx';
 import "./App.css";
 import { makeStyles } from "@material-ui/styles";
 import React, { useEffect, useState } from "react";
 import { red } from "@material-ui/core/colors";
+import {ChartComponent} from './ChartComponent';
 const useStyles = makeStyles((theme) => ({
   weather: {
     width: '48%',
     minWidth: 340,
     minHeight: 275,
+    display: 'inline-block',
+    boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)'
+  },
+  arrangeforcast:{
+    marginLeft:244
+  },
+  weatherForcast: {
+    minWidth:340,
+    width:'50%',
+    background: 'white',
+    padding: "20px 26px 20px 0px",
     display: 'inline-block',
     boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)'
   },
@@ -69,8 +84,10 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   cardaction: {
-    height:20
-  }
+    height:20,
+    display: 'inline'
+  },
+  inline:{display:'inline'}
 }));
 
 export default function App() {
@@ -81,12 +98,16 @@ export default function App() {
     horizontal: 'center',
   });
   const { vertical, horizontal, open } = state;
-  const [settings, setSettings] = useState({sunRise: '', sunSet: '',location: 'New York',  expanded: false, timeStamp: undefined, weatherUpdate: {}});
+  const [settings, setSettings] = useState({showForcast: false, sunRise: '', sunSet: '',location: 'New York',  expanded: false, timeStamp: undefined, weatherUpdate: {}});
   const [unit, setUnit]= useState('imperial');
   const [error,setError] = useState(undefined);
   console.log('settngs is',settings);
    const handleExpandClick = () => {
      setSettings({...settings, expanded:!settings.expanded});
+   };
+
+   const handleForcast=(e)=>{
+    setSettings({...settings, showForcast: !settings.showForcast})
    };
    const handleClick = (newState,message)  => {
      console.log('I\'m clicked');
@@ -195,19 +216,19 @@ export default function App() {
     </div>
     {console.log('weatherUpdate', settings.weatherUpdate, 'unit',unit)}
      <div className="weatherDetails">
-     <Snackbar
-  anchorOrigin={{ vertical, horizontal }}
-  open={open}
-  ContentProps={{
-    classes: {
-      root: classes.snackRoot
-    }
-  }}
-  autoHideDuration={3000}
-  onClose={handleClose}
-  message={error}
-  key={vertical + horizontal}
-/>
+            <Snackbar
+          anchorOrigin={{ vertical, horizontal }}
+          open={open}
+          ContentProps={{
+            classes: {
+              root: classes.snackRoot
+            }
+          }}
+          autoHideDuration={3000}
+          onClose={handleClose}
+          message={error}
+          key={vertical + horizontal}
+        />
        <Card className={classes.weather}>
             
        {error && 
@@ -251,20 +272,33 @@ export default function App() {
             <Typography style={{color: 'lightslategray'}} variant="body2" component="p">
               {settings.weatherUpdate.name}       
             </Typography>
-            <div>{Math.round(settings.weatherUpdate.main.temp_max * 10) / 10}°-{Math.round(settings.weatherUpdate.main.temp_min * 10) / 10}°</div>
+            <div>{Math.round(settings.weatherUpdate.main.temp_max * 10) / 10}° ~ {Math.round(settings.weatherUpdate.main.temp_min * 10) / 10}°</div>
         
           </CardContent>
           <CardActions className={classes.cardaction}>
-            <IconButton
-            className={clsx(classes.expand, {
-              [classes.expandOpen]: settings.expanded,
-            })}
-            onClick={handleExpandClick}
-            aria-expanded={settings.expanded}
-            aria-label="show more"
-          >
-            <ExpandMore /> 
+            <div className="actionsContainer">
+            <div className={classes.inline}>
+              <IconButton
+                className={clsx(classes.expand, {
+                  [classes.expandOpen]: settings.expanded,
+                })}
+                onClick={handleExpandClick}
+                aria-expanded={settings.expanded}
+                aria-label="show more"
+              >
+                <ExpandMore /> 
           </IconButton><span className="more"> More</span>
+              </div>
+              <div className="arrangeForcast">
+              <FormControlLabel
+                 onClick={(e)=>handleForcast(e)}
+                 control={<Switch  size="small" />}
+                  label={<span className="forcastLabel"> Show Weather Forcast</span>} />
+          
+              </div>
+            
+          
+            </div>
           </CardActions>
           <Collapse in={settings.expanded} timeout="auto" unmountOnExit>
               <div className="gridContainer">
@@ -290,6 +324,10 @@ export default function App() {
       </Card>
 
     </div>
+
+    {settings.showForcast && <div className={classes.weatherForcast}>
+    <ChartComponent/>
+                       </div>}
    
     </div>
   );
