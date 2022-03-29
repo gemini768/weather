@@ -1,15 +1,35 @@
-import { Button, TextField, Card, CardContent, Typography,Collapse, CircularProgress, Grid,IconButton, CardActions } from "@material-ui/core";
+import { Button, TextField, Card,
+   CardContent, Typography,Collapse,Snackbar,
+    CircularProgress, Grid,IconButton, CardActions,
+  Switch, FormControlLabel } from "@material-ui/core";
 import {LocationOn, ExpandMore} from '@material-ui/icons';
 import clsx from 'clsx';
 import "./App.css";
 import { makeStyles } from "@material-ui/styles";
 import React, { useEffect, useState } from "react";
+import { red } from "@material-ui/core/colors";
+import {ChartComponent} from './ChartComponent';
 const useStyles = makeStyles((theme) => ({
   weather: {
     width: '48%',
     minWidth: 340,
     minHeight: 275,
-    display: 'inline-block'
+    display: 'inline-block',
+    boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)'
+  },
+  arrangeforcast:{
+    marginLeft:244
+  },
+  weatherForcast: {
+    minWidth:340,
+    width:'50%',
+    background: 'white',
+    padding: "20px 26px 20px 0px",
+    display: 'inline-block',
+    boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)'
+  },
+  snackRoot:{
+    background: '#d32f2f'
   },
   root: {
     "& .MuiOutlinedInput-root": {
@@ -32,7 +52,8 @@ const useStyles = makeStyles((theme) => ({
     fontFamily:'metropolislight'
   },
   input: {
-    fontFamily: "metropolislight !important"
+    fontFamily: "metropolislight !important",
+    background: 'white'
   },
   currentTemp: {
     marginTop: 23,
@@ -48,6 +69,10 @@ const useStyles = makeStyles((theme) => ({
     lineHeight: 1.8,
     padding: "6px 23px",
     borderColor: "white",
+    "&:disabled": {
+      color: "#c1c1c1",
+      background: "grey"
+    },
     "&:hover": {
       backgroundColor: "#fff",
       color: "#007ab8",
@@ -59,27 +84,57 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   cardaction: {
-    height:20
-  }
+    height:20,
+    display: 'inline'
+  },
+  inline:{display:'inline'}
 }));
 
 export default function App() {
-  const classes = useStyles();
-  const [settings, setSettings] = useState({sunRise: '', sunSet: '',location: 'New York',  expanded: false, timeStamp: undefined, weatherUpdate: {}});
+  const classes = useStyles(); 
+  const [state, setState] = React.useState({
+    open: false,
+    vertical: 'top',
+    horizontal: 'center',
+  });
+  const { vertical, horizontal, open } = state;
+  const [settings, setSettings] = useState({showForcast: false, sunRise: '', sunSet: '',location: 'New York',  expanded: false, timeStamp: undefined, weatherUpdate: {}});
   const [unit, setUnit]= useState('imperial');
+  const [error,setError] = useState(undefined);
   console.log('settngs is',settings);
    const handleExpandClick = () => {
      setSettings({...settings, expanded:!settings.expanded});
    };
 
+   const handleForcast=(e)=>{
+    setSettings({...settings, showForcast: !settings.showForcast})
+   };
+   const handleClick = (newState,message)  => {
+     console.log('I\'m clicked');
+    setState({ open: true, ...newState });
+    setError(message)
+  };
+
+  const handleClose = () => {
+    console.log('I\'m closed');
+    setState({ ...state, open: false });
+  };
+
   let fetchUrl='http://api.openweathermap.org/data/2.5/weather?units='+unit+'&q='+settings.location+'&APPID=10d305791efc4e7255cf5e9c810180a4';
   
   const handleWeatherUpdate=(result)=> {
-    const currentDate=new Date();
+    if(result && result.message){
+
+      handleClick({
+        vertical: 'bottom',
+        horizontal: 'center',
+      }, result.message);
+    } else{
+      const currentDate=new Date();
     const currentTime= (currentDate.getHours()>12 ? currentDate.getHours()-12 +':'+currentDate.getMinutes()+' PM' : currentDate.getHours() +':'+currentDate.getMinutes()+' AM')
     const currentDateTime=currentTime +', ' +currentDate.toDateString();
-    const sunriseDetails=new Date((result.sys.sunrise+result.timezone)*1000).toUTCString().split(' ')[4].split(':');
-    const sunsetDetails=new Date((result.sys.sunset+result.timezone)*1000).toUTCString().split(' ')[4].split(':');
+    const sunriseDetails=result && result.sys ? new Date((result.sys.sunrise+result.timezone)*1000).toUTCString().split(' ')[4].split(':'): '';
+    const sunsetDetails=result && result.sys ? new Date((result.sys.sunset+result.timezone)*1000).toUTCString().split(' ')[4].split(':'): '';
     let sunRiseTime, sunSetTime='';
     if(parseInt(sunriseDetails[0])>12){
       sunRiseTime=(12- parseInt(sunriseDetails[0]))+':'+sunriseDetails[1]+' PM';
@@ -92,14 +147,16 @@ export default function App() {
       sunSetTime=sunsetDetails[0]+':'+sunsetDetails[1]+' AM';
     }
     setSettings({...settings, weatherUpdate:result,timeStamp:currentDateTime, sunRise: sunRiseTime, sunSet: sunSetTime});
+    }
   }
 
   const generateFetchUrl =(param)=>{
     return 'http://api.openweathermap.org/data/2.5/weather?units='+param+'&q='+settings.location+'&APPID=10d305791efc4e7255cf5e9c810180a4';
   }
 
-  const checkWeatherHandler = (param) => {
-    setSettings({...settings, weatherUpdate:{}})
+  const checkWeatherHandler = (e,param) => {
+    setSettings({...settings, weatherUpdate:{}});
+    setError(undefined);
     checkWeather(param);
   }
  
@@ -122,7 +179,7 @@ export default function App() {
   const toggleUnit =(e, param) =>{
     console.log('param',param);
     setUnit(param);
-    checkWeatherHandler(param);
+    checkWeatherHandler(null,param);
   };
 
   const changeLocation = (e) => {
@@ -146,23 +203,40 @@ export default function App() {
         onChange={changeLocation}
         className={classes.root}
         id="outlined-secondary"
-        label="Search Location "
+        label="Location "
         variant="outlined"
         color="primary"
         InputProps={{
           className: classes.input
         }}
       />&nbsp;&nbsp;
-      <Button className={classes.btn} onClick={()=> checkWeatherHandler()}>
-        Search
+      <Button className={classes.btn} disabled={!settings.location} onClick={(e)=>checkWeatherHandler(null,unit)}>
+        Check Weather
       </Button>
     </div>
     {console.log('weatherUpdate', settings.weatherUpdate, 'unit',unit)}
      <div className="weatherDetails">
+            <Snackbar
+          anchorOrigin={{ vertical, horizontal }}
+          open={open}
+          ContentProps={{
+            classes: {
+              root: classes.snackRoot
+            }
+          }}
+          autoHideDuration={3000}
+          onClose={handleClose}
+          message={error}
+          key={vertical + horizontal}
+        />
        <Card className={classes.weather}>
-      
+            
+       {error && 
+            <CardContent style={{width:'100%', height:'100%',     marginTop: 88}}> 
+            No results found</CardContent>
+            }
           
-            {(!settings.weatherUpdate || (settings.weatherUpdate && Object.keys(settings.weatherUpdate).length<1)) && 
+            {(!error && (!settings.weatherUpdate || (settings.weatherUpdate && Object.keys(settings.weatherUpdate).length<1))) && 
             <CardContent style={{width:'100%', height:'100%',     marginTop: 88}}> 
             <CircularProgress /> <br/> Loading latest weather updates</CardContent>
             }
@@ -173,7 +247,7 @@ export default function App() {
             <div className="temperatureWindow">
               <img src={`http://openweathermap.org/img/wn/`+settings.weatherUpdate.weather[0].icon+`@2x.png`}/>
               <Typography className={classes.currentTemp} variant="h3" component="h3">
-              {settings.weatherUpdate.main.temp}
+              {Math.round(settings.weatherUpdate.main.temp * 10) / 10}
             </Typography>
             {unit==='imperial' && <Typography  className={classes.currentTemp} variant="h4" component="h4">
             °F
@@ -198,19 +272,33 @@ export default function App() {
             <Typography style={{color: 'lightslategray'}} variant="body2" component="p">
               {settings.weatherUpdate.name}       
             </Typography>
+            <div>{Math.round(settings.weatherUpdate.main.temp_max * 10) / 10}° ~ {Math.round(settings.weatherUpdate.main.temp_min * 10) / 10}°</div>
         
           </CardContent>
           <CardActions className={classes.cardaction}>
-            <IconButton
-            className={clsx(classes.expand, {
-              [classes.expandOpen]: settings.expanded,
-            })}
-            onClick={handleExpandClick}
-            aria-expanded={settings.expanded}
-            aria-label="show more"
-          >
-            <ExpandMore /> 
-          </IconButton>More information
+            <div className="actionsContainer">
+            <div className={classes.inline}>
+              <IconButton
+                className={clsx(classes.expand, {
+                  [classes.expandOpen]: settings.expanded,
+                })}
+                onClick={handleExpandClick}
+                aria-expanded={settings.expanded}
+                aria-label="show more"
+              >
+                <ExpandMore /> 
+          </IconButton><span className="more"> More</span>
+              </div>
+              <div className="arrangeForcast">
+              <FormControlLabel
+                 onClick={(e)=>handleForcast(e)}
+                 control={<Switch  size="small" />}
+                  label={<span className="forcastLabel"> Show Weather Forcast</span>} />
+          
+              </div>
+            
+          
+            </div>
           </CardActions>
           <Collapse in={settings.expanded} timeout="auto" unmountOnExit>
               <div className="gridContainer">
@@ -236,6 +324,11 @@ export default function App() {
       </Card>
 
     </div>
+
+    {settings.showForcast && <div className={classes.weatherForcast}>
+    <ChartComponent/>
+                       </div>}
+   
     </div>
   );
 }

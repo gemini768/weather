@@ -11,3 +11,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.content{
+  font-size: 11px;
+  display: block;
+}
+.custom-tooltip{
+  background: white;
+  text-align: left;
+  padding: 2px;
+  border: 0.1px solid black;
+}
