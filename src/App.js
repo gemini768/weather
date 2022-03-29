@@ -59,6 +59,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 23,
     fontFamily: "metropolislight"
   },
+  weatherName:{color: 'lightslategray'},
    btn: {
     backgroundColor: "#007ab8",
     color: "#fff",
@@ -87,7 +88,8 @@ const useStyles = makeStyles((theme) => ({
     height:20,
     display: 'inline'
   },
-  inline:{display:'inline'}
+  inline:{display:'inline'},
+  cardContentA:{width:'100%', height:'100%',     marginTop: 88}
 }));
 
 export default function App() {
@@ -232,12 +234,12 @@ export default function App() {
        <Card className={classes.weather}>
             
        {error && 
-            <CardContent style={{width:'100%', height:'100%',     marginTop: 88}}> 
+            <CardContent className={classes.cardContentA}> 
             No results found</CardContent>
             }
           
             {(!error && (!settings.weatherUpdate || (settings.weatherUpdate && Object.keys(settings.weatherUpdate).length<1))) && 
-            <CardContent style={{width:'100%', height:'100%',     marginTop: 88}}> 
+               <CardContent className={classes.cardContentA}> 
             <CircularProgress /> <br/> Loading latest weather updates</CardContent>
             }
            {  settings.weatherUpdate && Object.keys(settings.weatherUpdate).length>0 && 
@@ -269,7 +271,7 @@ export default function App() {
             <Typography classes={{h5: classes.typographyBody}} variant="h5" component="h2">
               {settings.weatherUpdate.weather[0].main}
             </Typography>
-            <Typography style={{color: 'lightslategray'}} variant="body2" component="p">
+            <Typography className={classes.weatherName} variant="body2" component="p">
               {settings.weatherUpdate.name}       
             </Typography>
             <div>{Math.round(settings.weatherUpdate.main.temp_max * 10) / 10}° ~ {Math.round(settings.weatherUpdate.main.temp_min * 10) / 10}°</div>
