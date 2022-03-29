@@ -77,6 +77,7 @@ const CustomTooltip = ({
 
 export const ChartComponent=(weatherUpdate)=>{
     return(  
+       <> <h2>Weather Forcast</h2>
        <ResponsiveContainer width="99%" aspect={2} ><LineChart
         width={550}
         height={300}
@@ -96,10 +97,10 @@ export const ChartComponent=(weatherUpdate)=>{
         <Line
           type="monotone"
           dataKey="max"
-          stroke="#ca6f00"
+          stroke="red"
           activeDot={{ r: 8 }}
         />
         <Line type="monotone" dataKey="min" stroke="orange" />
-      </LineChart></ResponsiveContainer>);
+      </LineChart></ResponsiveContainer></>);
 };
 
