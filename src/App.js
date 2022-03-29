@@ -226,7 +226,7 @@ export default function App() {
             <div className="temperatureWindow">
               <img src={`http://openweathermap.org/img/wn/`+settings.weatherUpdate.weather[0].icon+`@2x.png`}/>
               <Typography className={classes.currentTemp} variant="h3" component="h3">
-              {settings.weatherUpdate.main.temp}
+              {Math.round(settings.weatherUpdate.main.temp * 10) / 10}
             </Typography>
             {unit==='imperial' && <Typography  className={classes.currentTemp} variant="h4" component="h4">
             °F
